@@ -26,4 +26,21 @@ class ShortenedUrl < ActiveRecord::Base
   def self.create_for_user_and_long_url!(user, long_url)
     ShortenedUrl.create!(long_url: long_url, short_url: ShortenedUrl.random_code, user_id: user.id)
   end
+
+  def num_clicks
+    self.visits.count
+  end
+
+  def num_uniques
+    self.visitors.count
+  end
+
+  def num_recent_uniques
+    self.visitors.where("visits.created_at > ?", 30.seconds.ago).count
+  end
+
+  def visit!(user)
+    Visit.record_visit!(user, self)
+  end
+
 end
