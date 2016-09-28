@@ -1,0 +1,17 @@
+class Tag < ActiveRecord::Base
+  validates :url_id, :topic_id, presence: true
+
+  belongs_to :url,
+    primary_key: :id,
+    foreign_key: :url_id,
+    class_name: :ShortenedUrl
+
+  belongs_to :topic,
+    primary_key: :id,
+    foreign_key: :topic_id,
+    class_name: :Topic
+
+    def self.tag(url_id, topic_id)
+      Tag.create(url_id: url_id, topic_id: topic_id)
+    end
+end

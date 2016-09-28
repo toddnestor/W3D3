@@ -8,13 +8,15 @@ user = User.find_by(email: email)
 user = User.create(email: email) unless user
 
 cmd = nil
-until cmd == 2
+until cmd == 3
   puts "What do you want to do?"
   puts "0. Create shortened URL"
   puts "1. Visit shortened URL"
-  puts "2. Exit"
+  puts "2. View topics"
+  puts "3. Exit"
 
   cmd = gets.chomp.to_i
+  topics = Topic.all
 
   case cmd
   when 0
@@ -22,6 +24,25 @@ until cmd == 2
     url = gets.chomp
     short_url = ShortenedUrl.create_for_user_and_long_url!(user, url)
     puts "Short url is: #{short_url.short_url}"
+    puts "Do you want to tag this Url?"
+    response = gets.chomp
+
+    if response.downcase == 'y'
+      if topics.length > 0
+        puts "Choose topic(s):"
+        topics.each_with_index do |topic, i|
+          puts "#{i}. #{topic.name}"
+        end
+
+        tags = gets.chomp.split(',').map {|el| el.strip.to_i}
+
+        tags.each do |topic_index|
+          short_url.tag(topics[topic_index].id)
+        end
+      else
+        puts "There are no topics!!!"
+      end
+    end
   when 1
     puts "Type in the shortened URL"
     input_url = gets.chomp
@@ -33,6 +54,18 @@ until cmd == 2
       Launchy.open(short_url.long_url)
     else
       puts "Invalid short url!"
+    end
+  when 2
+    puts "Choose a topic to view"
+    topics.each_with_index do |topic, i|
+      puts "#{i}. #{topic.name}"
+    end
+
+    option = gets.chomp.to_i
+    topic = topics[option]
+    puts "The most popular links for #{topic.name} are: "
+    topic.most_popular_links.each_with_index do |link, i|
+      puts "#{i}. #{link.long_url}"
     end
   end
 end

@@ -8,14 +8,23 @@ class ShortenedUrl < ActiveRecord::Base
     class_name: :User
 
   has_many :visits,
-  primary_key: :id,
-  foreign_key: :url_id,
-  class_name: :Visit
+    primary_key: :id,
+    foreign_key: :url_id,
+    class_name: :Visit
 
   has_many :visitors,
-  Proc.new { distinct },
-  through: :visits,
-  source: :user
+    Proc.new { distinct },
+    through: :visits,
+    source: :user
+
+  has_many :tags,
+    primary_key: :id,
+    foreign_key: :url_id,
+    class_name: :Tag
+
+  has_many :topics,
+    through: :tags,
+    source: :topic
 
   def self.random_code(n=8)
     code = SecureRandom::urlsafe_base64[0..n]
@@ -43,4 +52,7 @@ class ShortenedUrl < ActiveRecord::Base
     Visit.record_visit!(user, self)
   end
 
+  def tag(topic_id)
+    Tag.tag(self.id, topic_id)
+  end
 end
