@@ -14,7 +14,7 @@ class Course < ActiveRecord::Base
   foreign_key: :instructor_id,
   class_name: :User
 
-  has_many :enrollments,
+  has_many :enrolled_students,
   through: :enrollments,
   source: :user
 end
