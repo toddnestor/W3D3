@@ -23,25 +23,33 @@ until cmd == 3
     puts "Type in your long url"
     url = gets.chomp
     short_url = ShortenedUrl.create_for_user_and_long_url!(user, url)
-    puts "Short url is: #{short_url.short_url}"
-    puts "Do you want to tag this Url?"
-    response = gets.chomp
 
-    if response.downcase == 'y'
-      if topics.length > 0
-        puts "Choose topic(s):"
-        topics.each_with_index do |topic, i|
-          puts "#{i}. #{topic.name}"
+    if short_url.id
+
+      puts "Short url is: #{short_url.short_url}"
+      puts "Do you want to tag this Url?"
+      response = gets.chomp
+
+      if response.downcase == 'y'
+        if topics.length > 0
+          puts "Choose topic(s):"
+          topics.each_with_index do |topic, i|
+            puts "#{i}. #{topic.name}"
+          end
+
+          tags = gets.chomp.split(',').map {|el| el.strip.to_i}
+
+          tags.each do |topic_index|
+            short_url.tag(topics[topic_index].id)
+          end
+        else
+          puts "There are no topics!!!"
         end
-
-        tags = gets.chomp.split(',').map {|el| el.strip.to_i}
-
-        tags.each do |topic_index|
-          short_url.tag(topics[topic_index].id)
-        end
-      else
-        puts "There are no topics!!!"
       end
+
+    else
+      puts "You got Errors!"
+      short_url.errors.full_messages.each {|message| puts message}
     end
   when 1
     puts "Type in the shortened URL"
