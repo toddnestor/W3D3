@@ -3,6 +3,7 @@ class ShortenedUrl < ActiveRecord::Base
   validates :short_url, uniqueness: true
   validates :long_url, length: {minimum: 4, maximum: 2083}
   validate :more_than_five_urls_in_a_minute
+  validate :premium
 
   belongs_to :submitter,
     primary_key: :id,
@@ -52,6 +53,14 @@ class ShortenedUrl < ActiveRecord::Base
     end
   end
 
+  def premium
+    unless submitter.premium
+      if submitter.submitted_urls.length >= 5
+        self.errors[:cannot_create] << "more than five urls unless you're a premium user"
+      end
+    end
+  end
+
   def num_clicks
     self.visits.count
   end
@@ -61,7 +70,7 @@ class ShortenedUrl < ActiveRecord::Base
   end
 
   def num_recent_uniques
-    self.visitors.where("visits.created_at > ?", 30.seconds.ago).count
+    self.visitors.where("visits.created_at > ?", 10.minutes.ago).count
   end
 
   def visit!(user)
