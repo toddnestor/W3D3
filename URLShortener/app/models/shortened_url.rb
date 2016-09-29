@@ -29,6 +29,15 @@ class ShortenedUrl < ActiveRecord::Base
     through: :tags,
     source: :topic
 
+  has_many :votes,
+    primary_key: :id,
+    foreign_key: :url_id,
+    class_name: :Vote
+
+  has_many :voters,
+    through: :votes,
+    source: :user
+
   def long_url=(url)
     unless url.match(/^((http(s)?:)?\/\/).*/)
       url = "http://" + url
@@ -63,6 +72,10 @@ class ShortenedUrl < ActiveRecord::Base
 
   def num_clicks
     self.visits.count
+  end
+
+  def num_votes
+    self.votes.count
   end
 
   def num_uniques
